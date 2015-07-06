@@ -18,7 +18,7 @@ body {
 }
 .grid path, .grid line {
 	fill: none;
-	stroke: #E8E8E8;
+	stroke: #E0E0E0;
 	shape-rendering: crispEdges;
 }
 div.tooltip {
