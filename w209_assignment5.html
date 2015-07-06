@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>W209 Assignment 5</title>
+		<link rel="stylesheet" href="style.css"/>
+        <script type="text/javascript" src="d3/d3.v3.js"></script>
+    </head>
+    <body>
+        <h1>W209 Assignment 5: NBA Dataset</h1>
+		<script type="text/javascript">
+			var margin = {top: 20, right: 20, bottom: 40, left: 80},
+				total_width = 600,
+				total_height = 500,
+				width = total_width - margin.left - margin.right,
+				height = total_height - margin.top - margin.bottom;
+
+			// x-axis items
+			var xValue = function(d) { return d.turnovers; },
+				xScale = d3.scale.linear().range([0, width]),
+				xMap = function(d) { return xScale(xValue(d)); },
+				xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(8);
+			
+			// y-axis items
+			var yValue = function(d) { return d.points; },
+				yScale = d3.scale.linear().range([height, 0]),
+				yMap = function(d) { return yScale(yValue(d)); },
+				yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(12);
+			
+			// fill color
+			var cValue = function(d) { return d.playoffs; },
+				color = d3.scale.ordinal()
+					.domain(["No", "Yes"])
+					.range([d3.rgb("rgb(192, 192, 192)"), d3.rgb("rgb(255, 140, 0)")]);
+			
+			var svg = d3.select("body")
+				.append("svg")
+					.attr("width", width + margin.left + margin.right)
+					.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+					
+				
+			var tooltip = d3.select("body").append("div")
+				.attr("class", "tooltip")
+				.style("opacity", 0);
+			
+			
+			d3.csv('team_turnovers_points.csv', function(error, data) {
+				
+				// make sure csv is turned into a number
+				data.forEach(function(d) {
+					d.points = +d.points;
+					d.turnovers = +d.turnovers;
+					d.ratio = d.points / d.turnovers;
+					console.log(d);
+				});
+				
+				// make sure circles don't overlap the axis
+				xScale.domain([0, d3.max(data, xValue) + 1]).nice();
+				yScale.domain([0, d3.max(data, yValue) + 1]).nice();
+				
+				
+				// draw circles
+				svg.selectAll(".dot")
+					.data(data)
+					.enter()
+					.append("circle")
+						.attr("class", "dot")
+						.attr("r", 3.5)
+						.attr("cx", xMap)
+						.attr("cy", yMap)
+						.style("fill", function (d) { return color(cValue(d)); } )
+						.on("mouseover", function(d) {
+							tooltip.transition()
+								.duration(300)
+								.style("opacity", 0.9);
+							tooltip.html("Team: <b>" + d["team"] + "</b><br/>Points: <b>" + d.points + "</b><br/>Turnovers: <b>" + d.turnovers + "</b><br/>Points/Turnovers: <b>" + d3.round(d.ratio, 1) + "</b>")
+								.style("left", (d3.event.pageX + 5) + "px")
+								.style("top", (d3.event.pageY - 28) + "px");
+							})
+						.on("mouseout", function(d) {
+							tooltip.transition()
+								.duration(500)
+								.style("opacity", 0);
+						})
+				
+				
+				// x-axis
+				svg.append("g")
+						.attr("class", "x axis")
+						.attr("transform", "translate(0," + height + ")")
+						.call(xAxis)
+					.append("text")
+						.attr("class", "label")
+						.attr("x", total_width / 2 - margin.right)
+						.attr("y", margin.bottom)
+						.style("text-anchor", "middle")
+						.style("font-weight", "bold")
+						.style("font-color", "blue")
+						.text("Turnovers")
+				
+				// y-axis
+				svg.append("g")
+						.attr("class", "y axis")
+						.call(yAxis)
+					.append("text")
+						.attr("class", "label")
+						//.attr("transform", "rotate(-90)")
+						.attr("y", total_height / 2 - margin.bottom)
+						.attr("x", -1 * margin.left)
+						.attr("dy", ".71em")
+						.style("text-anchor", "dstart")
+						.style("font-weight", "bold")
+						.text("Points");
+				
+				
+				
+
+			});
+			
+        </script>
+    </body>
+</html>
+</html>

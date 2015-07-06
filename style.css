@@ -1,0 +1,31 @@
+h1 {
+    color:#000099;
+    font-family:verdana;
+    font-size:200%;
+}
+body {
+    font-family:verdana;
+}
+.axis text {
+	font: 10px verdana;
+	fill: #686868;
+	shape-rendering: crispEdges;
+}
+.axis path, .axis line {
+	fill: none;
+	stroke: #B0B0B0;
+	shape-rendering: crispEdges;
+}
+div.tooltip {
+	position: absolute;
+	text-align: center;
+	width: 150px;
+	height: 60px;
+	padding: 2px;
+	font: 10px verdana;
+	background: #F8F8F8;
+	border: 1px #A8A8A8 solid;
+	border-radius: 3px;
+	pointer-events: none;
+
+}
