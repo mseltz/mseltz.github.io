@@ -8,9 +8,10 @@
     </head>
     <body>
         <h1>W209 Assignment 5: NBA Dataset</h1>
+		<h2></h2>
 		<script type="text/javascript">
-			var margin = {top: 20, right: 20, bottom: 40, left: 80},
-				total_width = 600,
+			var margin = {top: 40, right: 20, bottom: 40, left: 80},
+				total_width = 700,
 				total_height = 500,
 				width = total_width - margin.left - margin.right,
 				height = total_height - margin.top - margin.bottom;
@@ -19,19 +20,45 @@
 			var xValue = function(d) { return d.turnovers; },
 				xScale = d3.scale.linear().range([0, width]),
 				xMap = function(d) { return xScale(xValue(d)); },
-				xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(8);
+				xAxis = d3.svg.axis()
+					.scale(xScale)
+					.orient("bottom")
+					.ticks(8)
+					.tickSize(5, 0, 0)
+					.tickPadding(10);
+				xGrid = d3.svg.axis()
+					.scale(xScale)
+					.orient("bottom")
+					.ticks(8)
+					.tickSize(-height, 0, 0)
+					.tickFormat("");
 			
 			// y-axis items
 			var yValue = function(d) { return d.points; },
 				yScale = d3.scale.linear().range([height, 0]),
 				yMap = function(d) { return yScale(yValue(d)); },
-				yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(12);
+				yAxis = d3.svg.axis()
+					.scale(yScale)
+					.orient("left")
+					.ticks(12)
+					.tickSize(5, 0, 0)
+					.tickPadding(10);
+				yGrid = d3.svg.axis()
+					.scale(yScale)
+					.orient("left")
+					.ticks(12)
+					.tickSize(-width, 0, 0)
+					.tickFormat("");
 			
 			// fill color
-			var cValue = function(d) { return d.playoffs; },
+			var cValue = function(d) { return legendName(d.playoffs); },
 				color = d3.scale.ordinal()
-					.domain(["No", "Yes"])
+					.domain(["Did not make playoffs", "Playoff team"])
 					.range([d3.rgb("rgb(192, 192, 192)"), d3.rgb("rgb(255, 140, 0)")]);
+			
+			var legendName = d3.scale.ordinal()
+				.domain(["No", "Yes"])
+				.range(["Did not make playoffs", "Playoff team"]);
 			
 			var svg = d3.select("body")
 				.append("svg")
@@ -60,31 +87,25 @@
 				xScale.domain([0, d3.max(data, xValue) + 1]).nice();
 				yScale.domain([0, d3.max(data, yValue) + 1]).nice();
 				
+				// add chart title
+				svg.append("text")
+					.attr("x", (width / 2))             
+					.attr("y", 0 - (margin.top / 2))
+					.attr("text-anchor", "middle")  
+					.style("font-size", "16px") 
+					.style("text-decoration", "underline")  
+					.text("Points and turnovers per NBA team through 68 games of 2015 season");
 				
-				// draw circles
-				svg.selectAll(".dot")
-					.data(data)
-					.enter()
-					.append("circle")
-						.attr("class", "dot")
-						.attr("r", 3.5)
-						.attr("cx", xMap)
-						.attr("cy", yMap)
-						.style("fill", function (d) { return color(cValue(d)); } )
-						.on("mouseover", function(d) {
-							tooltip.transition()
-								.duration(300)
-								.style("opacity", 0.9);
-							tooltip.html("Team: <b>" + d["team"] + "</b><br/>Points: <b>" + d.points + "</b><br/>Turnovers: <b>" + d.turnovers + "</b><br/>Points/Turnovers: <b>" + d3.round(d.ratio, 1) + "</b>")
-								.style("left", (d3.event.pageX + 5) + "px")
-								.style("top", (d3.event.pageY - 28) + "px");
-							})
-						.on("mouseout", function(d) {
-							tooltip.transition()
-								.duration(500)
-								.style("opacity", 0);
-						})
+				// x-grid
+				svg.append("g")
+						.attr("class", "x grid")
+						.attr("transform", "translate(0," + height + ")")
+						.call(xGrid);
 				
+				// y-grid
+				svg.append("g")
+						.attr("class", "y grid")
+						.call(yGrid);
 				
 				// x-axis
 				svg.append("g")
@@ -98,7 +119,7 @@
 						.style("text-anchor", "middle")
 						.style("font-weight", "bold")
 						.style("font-color", "blue")
-						.text("Turnovers")
+						.text("Turnovers");
 				
 				// y-axis
 				svg.append("g")
@@ -113,7 +134,58 @@
 						.style("text-anchor", "dstart")
 						.style("font-weight", "bold")
 						.text("Points");
+						
+				// draw circles
+				svg.selectAll(".dot")
+					.data(data)
+					.enter()
+					.append("circle")
+						.attr("class", "dot")
+						.attr("r", 5)
+						.attr("cx", xMap)
+						.attr("cy", yMap)
+						.style("fill", function (d) { return color(cValue(d)); } )
+						.style("stroke", "white")
+						.on("mouseover", function(d) {
+							tooltip.transition()
+								.duration(300)
+								.style("opacity", 0.9);
+							tooltip.html("Team: <b>" + d["team"] + "</b><br/>Points: <b>" + d.points + "</b><br/>Turnovers: <b>" + d.turnovers + "</b><br/>Points/Turnovers: <b>" + d3.round(d.ratio, 1) + "</b>")
+								.style("left", (d3.event.pageX + 5) + "px")
+								.style("top", (d3.event.pageY - 28) + "px");
+							})
+						.on("mouseout", function(d) {
+							tooltip.transition()
+								.duration(500)
+								.style("opacity", 0);
+						});
 				
+				
+				
+				// add legend
+				var legend = svg.selectAll(".legend")
+						.data(color.domain())
+					.enter().append("g")
+						.attr("class", "legend")
+						.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+				
+				// draw legend background
+				
+				
+				// draw legend colored rectangles
+				legend.append("circle")
+					.attr("cx", width - 9)
+					.attr("cy", height - 41)
+					.attr("r", 5)
+					.style("fill", color);
+				
+				// draw legend text
+				legend.append("text")
+					.attr("x", width - 24)
+					.attr("y", height - 41)
+					.attr("dy", ".35em")
+					.style("text-anchor", "end")
+					.text(function(d) { return d; });
 				
 				
 

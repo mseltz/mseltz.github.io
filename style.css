@@ -6,7 +6,7 @@ h1 {
 body {
     font-family:verdana;
 }
-.axis text {
+.axis text, .legend text {
 	font: 10px verdana;
 	fill: #686868;
 	shape-rendering: crispEdges;
@@ -16,16 +16,25 @@ body {
 	stroke: #B0B0B0;
 	shape-rendering: crispEdges;
 }
+.grid path, .grid line {
+	fill: none;
+	stroke: #F8F8F8;
+	shape-rendering: crispEdges;
+}
 div.tooltip {
 	position: absolute;
 	text-align: center;
 	width: 150px;
-	height: 60px;
+	height: 57px;
 	padding: 2px;
 	font: 10px verdana;
 	background: #F8F8F8;
 	border: 1px #A8A8A8 solid;
 	border-radius: 3px;
 	pointer-events: none;
-
 }
+.legend rect {
+	background: white;
+	stroke: #A8A8A8;
+}
+
